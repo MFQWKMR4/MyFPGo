@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/MFQWKMR4/MyFPGo/pkg/hkt"
+	. "github.com/MFQWKMR4/MyFPGo/pkg/hkt"
 	"github.com/MFQWKMR4/MyFPGo/pkg/list"
 	"github.com/MFQWKMR4/MyFPGo/pkg/maybe"
 )
@@ -36,14 +36,14 @@ func main() {
 		return tmp
 	}
 
-	var divideBy = func(i int) hkt.K1[maybe.MaybeId, int] {
+	var divideBy = func(i int) K1[maybe.Maybe, int] {
 		if i == 0 {
 			return maybe.None[int]()
 		}
 		return maybe.Some(100 / i)
 	}
 
-	var genN = func(n int) hkt.K1[list.ListId, int] {
+	var genN = func(n int) K1[list.List, int] {
 		results := make([]int, n)
 		for i := 0; i < n; i++ {
 			results[i] = i + 1
@@ -51,7 +51,7 @@ func main() {
 		return list.New(results)
 	}
 
-	res1 := hkt.Chain3(
+	res1 := Chain3(
 		maybe.F(intToStr), // 100 -> "100"
 		maybe.F(count),    // "100" -> 3
 		maybe.F(double),   // 3 -> 6
@@ -59,7 +59,7 @@ func main() {
 
 	fmt.Println(res1)
 
-	res2 := hkt.Chain3(
+	res2 := Chain3(
 		maybe.F(intToStr), // 100 -> "100"
 		maybe.F(count),    // "100" -> 3
 		maybe.M(divideBy), // 3 -> 33
@@ -67,7 +67,7 @@ func main() {
 
 	fmt.Println(res2)
 
-	res3 := hkt.Chain3(
+	res3 := Chain3(
 		maybe.F(count),    // "100" -> 3
 		maybe.F(minus50),  // 3 -> 0
 		maybe.M(divideBy), // 0 -> None[int]
@@ -75,14 +75,14 @@ func main() {
 
 	fmt.Println(res3)
 
-	res4 := hkt.Chain2(
+	res4 := Chain2(
 		list.F(intToStr), // 1, 2, 3 -> "1", "2", "3"
 		list.F(count),    // "1", "2", "3" -> 1, 1, 1
 	)(c)
 
 	fmt.Println(res4)
 
-	res5 := hkt.Chain2(
+	res5 := Chain2(
 		list.M(genN),   // 1 ,2, 3 -> 1, 1, 2, 1, 2, 3
 		list.F(double), // 1, 1, 2, 1, 2, 3 -> 2, 2, 4, 2, 4, 6
 	)(c)

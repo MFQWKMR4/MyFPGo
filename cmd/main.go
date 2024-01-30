@@ -1,12 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
 	. "github.com/MFQWKMR4/MyFPGo/pkg/hkt"
 	"github.com/MFQWKMR4/MyFPGo/pkg/list"
 	"github.com/MFQWKMR4/MyFPGo/pkg/maybe"
+	"github.com/MFQWKMR4/MyFPGo/pkg/result"
 )
 
 // example
@@ -51,6 +53,13 @@ func main() {
 		return list.New(results)
 	}
 
+	var add3 = func(i int) K2[result.Result, int, error] {
+		if i < 7 {
+			return result.Ok[int, error](i + 3)
+		}
+		return result.Err[int, error](errors.New("too big"))
+	}
+
 	res1 := Chain3(
 		maybe.F(intToStr), // 100 -> "100"
 		maybe.F(count),    // "100" -> 3
@@ -82,10 +91,44 @@ func main() {
 
 	fmt.Println(res4)
 
-	res5 := Chain2(
+	res5 := Chain3(
 		list.M(genN),   // 1 ,2, 3 -> 1, 1, 2, 1, 2, 3
 		list.F(double), // 1, 1, 2, 1, 2, 3 -> 2, 2, 4, 2, 4, 6
+		list.F(double), // 2, 2, 4, 2, 4, 6 -> 4, 4, 8, 4, 8, 12
 	)(c)
 
 	fmt.Println(res5)
+
+	res6 := Chain22(
+		result.Mw(add3), // Ok(5) -> Ok(8)
+		result.Mw(add3), // Ok(8) -> Err("too big")
+	)(result.Ok[int, error](5))
+
+	fmt.Println(res6)
+
+	//
+	//
+
+	sample1()
+}
+
+func sample1() {
+
+	a := 1
+	b := 2
+	c := list.New([]*int{&a, nil, &b})
+	d := list.Map(func(i *int) K1[maybe.Maybe, int] {
+		return maybe.From(i)
+	})(c)
+
+	list.ForEach(func(a K1[maybe.Maybe, int]) {
+		fmt.Println(a)
+	})(d)
+
+	list.ForEach(func(a K1[maybe.Maybe, int]) {
+		fmt.Println(a)
+	})(list.Filter(func(a K1[maybe.Maybe, int]) bool {
+		return a != maybe.None[int]()
+	})(d))
+
 }

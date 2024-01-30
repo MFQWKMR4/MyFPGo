@@ -38,3 +38,12 @@ func ForEach[A any](f func(A)) func(hkt.K1[List, A]) {
 		}
 	}
 }
+
+func Chain[A any](a hkt.K1[List, A]) func(funcs ...func(hkt.K1[List, A]) hkt.K1[List, A]) hkt.K1[List, A] {
+	return func(funcs ...func(hkt.K1[List, A]) hkt.K1[List, A]) hkt.K1[List, A] {
+		for _, f := range funcs {
+			a = f(a)
+		}
+		return a
+	}
+}

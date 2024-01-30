@@ -116,19 +116,24 @@ func sample1() {
 
 	a := 1
 	b := 2
+
 	c := list.New([]*int{&a, nil, &b})
-	d := list.Map(func(i *int) K1[maybe.Maybe, int] {
-		return maybe.From(i)
-	})(c)
+	d := list.Map[*int, K1[maybe.Maybe, int]](maybe.From[int])(c)
+
+	var double = func(i int) int {
+		return i * 2
+	}
+
+	var isDefined = func(i K1[maybe.Maybe, int]) bool {
+		return i != maybe.None[int]()
+	}
+
+	data := list.Chain(d)(
+		list.Filter(isDefined),
+		list.Map(maybe.Map(double)),
+	)
 
 	list.ForEach(func(a K1[maybe.Maybe, int]) {
 		fmt.Println(a)
-	})(d)
-
-	list.ForEach(func(a K1[maybe.Maybe, int]) {
-		fmt.Println(a)
-	})(list.Filter(func(a K1[maybe.Maybe, int]) bool {
-		return a != maybe.None[int]()
-	})(d))
-
+	})(data)
 }
